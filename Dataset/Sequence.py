@@ -8,7 +8,7 @@ from functools import partial
 
 @tf.function
 def load_images(x):
-    image = tf.io.read_file('../Users/andre/Desktop/Internship BII/release_v0/images/'+x)
+    image = tf.io.read_file('C:/Users/andre/Desktop/Internship BII/release_v0/images/'+x)
     image = tf.image.decode_jpeg(image)
     image = tf.image.convert_image_dtype(image, tf.float32)
     # image = image / 255.
@@ -116,36 +116,10 @@ class GenericImageSequence(Sequence):
 
     def get_all_parameters(self):
         return {
-            'clinic_col': self.impath_col, 'label_col': self.label_col, 'batch_size': self.batch_size,
+            'derm_col': self.impath_col, 'label_col': self.label_col, 'batch_size': self.batch_size,
             'shuffle': self.shuffle, 'reshuffle_each_epoch': self.reshuffle_each_epoch,
             'random_state': self.random_state, 'one_hot_encoding': self.one_hot_encoding,
             'categories': self.categories, 'new_size': self.new_size
         }
 
 
-
-
-#############################################################
-
-class DFTOBATCHSequence(Sequence):
-
-    #It takes df as input, split in path column = x_set and label tuple = y_set (one y for every task)
-    #The init method takes all the dataframe and initiliazes attributes of object
-    def __init__(self, df, batch_size):
-        self.x = df.clinic
-        self.y = df.loc[:, ['2']] #selection of single task
-        self.batch_size = batch_size
-
-    #The __len__ method calculate the number of batches within the dataset
-    def __len__(self):
-        return math.ceil(len(self.x) / self.batch_size)
-
-    #The __getitem__ method returns a batch of the dataset in numpy array format
-    def __getitem__(self, idx):
-        batch_x = self.x[idx * self.batch_size:(idx + 1) *
-        self.batch_size]
-        batch_y = self.y.iloc[idx * self.batch_size:(idx + 1) *
-        self.batch_size]
-        return np.array([
-            resize(imread('../Users/andre/Desktop/Internship BII/release_v0/images/'+file_name), (256, 256))
-               for file_name in batch_x]), np.array([row for _,row  in batch_y.iterrows()])
