@@ -36,7 +36,7 @@ def load_aug_resize(x, new_size=(256, 256)):
 
 class GenericImageSequence(Sequence):
     def __init__(
-            self, df: pd.DataFrame, impath_col='derm', label_col='2', batch_size = 1, shuffle=False,
+            self, df: pd.DataFrame, impath_col='derm', label_col='diagnosis_numeric', batch_size = 1, shuffle=False,
             map_fn='resize', one_hot_encoding=True, categories='auto', random_state=None, new_size=(256, 256),
             reshuffle_each_epoch=True
     ):
@@ -64,7 +64,7 @@ class GenericImageSequence(Sequence):
             self.df, self.shuffle, label_col=self.label_col, impath_col=self.impath_col
         )
 
-    def prepare_data(self, df, shuffle=False, label_col='2', impath_col='derm'):
+    def prepare_data(self, df, shuffle=False, label_col='diagnosis_numeric', impath_col='derm'):
         # shuffle data
         if shuffle:
             df = df.sample(frac=1.)
