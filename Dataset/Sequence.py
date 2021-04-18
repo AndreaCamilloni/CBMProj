@@ -8,7 +8,7 @@ from functools import partial
 
 @tf.function
 def load_images(x):
-    image = tf.io.read_file('C:/Users/andre/Desktop/Internship BII/release_v0/images/'+x)
+    image = tf.io.read_file('/home/andreac/release_v0/images/'+x)
     image = tf.image.decode_jpeg(image)
     image = tf.image.convert_image_dtype(image, tf.float32)
     # image = image / 255.
