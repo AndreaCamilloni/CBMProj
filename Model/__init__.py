@@ -1,4 +1,4 @@
-import tf as tf
+import tensorflow as tf
 from tensorflow import keras
 from tensorflow.python.keras import Input, Model
 from tensorflow.python.keras.layers import Dense, GlobalAveragePooling2D, Activation, Conv2D, MaxPool2D, Flatten
@@ -25,9 +25,9 @@ def single_task_model():
     return model
 
 def multi_task_model():
-    input_ = Input(shape=(256, 256, 3), name='input')  # Input tensor 256x256x3
-    conv_0 = Conv2D(32, 3, name='conv_0')(input_)
-    act_0 = Activation('relu', name='act_0')(conv_0)
+    base_model = keras.applications.ResNet50(weights=None, classes=14, include_top=False, input_shape=(256, 256, 3))
+    x = base_model.output
+    act_0 = Activation('relu', name='act_0')(x)
 
     # Task 1
     conv_1 = Conv2D(32, 3, name='conv_1')(act_0)
@@ -94,7 +94,7 @@ def multi_task_model():
     diag = Dense(2, activation='sigmoid', name='diag')(flat_diag)
 
     # Groups layer in Model object
-    model = tf.keras.models.Model(input_, [t1, t2, t3, t4, t5, t6, t7, diag])
+    model = tf.keras.models.Model(base_model.input, [t1, t2, t3, t4, t5, t6, t7, diag])
 
     # we can define a multiple loss by dict
     # key = name of dense layer
