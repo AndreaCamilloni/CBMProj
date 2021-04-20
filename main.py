@@ -23,8 +23,6 @@ early_stopping = callbacks.EarlyStopping(
 history = model.fit(
     train_gen,
     validation_data=test_gen,
-    steps_per_epoch=30,
-    validation_steps=10,
-    epochs=5)
+    epochs=10)
 
 #train_gen[0]
