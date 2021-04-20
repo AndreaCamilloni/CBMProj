@@ -5,6 +5,7 @@ meta_dir = os.path.join('..', '/home/andreac/release_v0/meta')
 image_dir = os.path.join('..', '/home/andreac/release_v0/images')
 
 df = pd.read_csv(os.path.join(meta_dir, 'dataframe.csv'))
+df['diagnosis_numeric']=df['diagnosis_numeric'].apply(lambda x: 1 if x == 2 else 0) #MEL or NOT-MEL 'mapping'
 
 train_indexes = list(pd.read_csv(os.path.join(meta_dir, 'train_indexes.csv'))['indexes'])
 valid_indexes = list(pd.read_csv(os.path.join(meta_dir, 'valid_indexes.csv'))['indexes'])
