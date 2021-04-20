@@ -2,14 +2,14 @@ from sklearn.model_selection import train_test_split
 from tensorflow import keras
 from tensorflow.keras import *
 
-from Dataset import df
+from Dataset import df, train_df, test_df
 from Dataset.Sequence import GenericImageSequence
 from Model import single_task_model
 
 model = single_task_model()
 df['diagnosis_numeric']=df['diagnosis_numeric'].apply(lambda x: 1 if x == 2 else 0) #MEL or NOT-MEL 'mapping'
 
-train_df, test_df = train_test_split(df, test_size=0.3) #splittare secondo train e test indexes
+#train_df, test_df = train_test_split(df, test_size=0.3) #splittare secondo train e test indexes
 train_gen = GenericImageSequence(train_df,'derm','diagnosis_numeric', batch_size=16)
 test_gen = GenericImageSequence(test_df,'derm','diagnosis_numeric', batch_size=16)
 

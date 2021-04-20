@@ -10,5 +10,6 @@ train_indexes = list(pd.read_csv(os.path.join(meta_dir, 'train_indexes.csv'))['i
 valid_indexes = list(pd.read_csv(os.path.join(meta_dir, 'valid_indexes.csv'))['indexes'])
 test_indexes = list(pd.read_csv(os.path.join(meta_dir, 'test_indexes.csv'))['indexes'])
 
-
-
+train_df = df.iloc[train_indexes]
+valid_df = df.iloc[valid_indexes]
+test_df = df.iloc[test_indexes]
