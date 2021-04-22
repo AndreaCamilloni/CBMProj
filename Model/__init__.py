@@ -4,6 +4,10 @@ from tensorflow.python.keras import Input, Model
 from tensorflow.python.keras.layers import Dense, GlobalAveragePooling2D, Activation, Conv2D, MaxPool2D, Flatten
 
 
+from keras.regularizers import l2
+from keras.layers import (Activation, Dropout, Flatten, Dense, GlobalMaxPooling2D,
+                          BatchNormalization, Input, Conv2D, GlobalAveragePooling2D)
+
 def single_task_model():
     base_model = keras.applications.ResNet50(weights=None, classes=2, include_top=False,
                                              input_shape=(256,256,3))
@@ -23,6 +27,26 @@ def single_task_model():
         metrics=['accuracy']
     )
     return model
+def single_task_modelprova():
+    base_model = keras.applications.ResNet50(weights=None, classes=2, include_top=False, input_shape=(256, 256, 3))
+
+    x = keras.layers.GlobalAveragePooling2D()(base_model.output)
+    x = keras.layers.Dropout(0.5)(x)
+    x = Dense(1024, activation='relu', kernel_regularizer=l2(5e-4))(x)
+    x = keras.layers.Dropout(0.5)(x)
+    # doing binary prediction, so just 1 neuron is enough
+    predictions = Dense(1, activation='sigmoid', name='predictions')(x)
+    model = Model(inputs=base_model.input, outputs=predictions)
+    model.compile(
+        loss={
+            'predictions': 'binary_crossentropy'
+        },
+        optimizer='adam',
+        metrics=['accuracy']
+    )
+    return model
+
+
 
 def multi_task_model():
     base_model = keras.applications.ResNet50(weights=None, classes=14, include_top=False, input_shape=(256, 256, 3))

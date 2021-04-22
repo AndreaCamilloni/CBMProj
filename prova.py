@@ -1,7 +1,31 @@
 import os
+
+from tensorflow.keras import *
 import pandas as pd
+from tensorflow.python.keras.models import load_model
 
-from Dataset import df
+from Dataset import train_df, test_df, valid_df
+from Dataset.Sequence import GenericImageSequence
 
-df['diagnosis_numeric']=df['diagnosis_numeric'].apply(lambda x: 1 if x == 2 else 0) #MEL or NOT-MEL 'mapping'
+reconstructed_model = load_model('model1.h5')
+train_gen = GenericImageSequence(train_df,'derm','diagnosis_numeric', batch_size=1)
+valid_gen = GenericImageSequence(valid_df,'derm','diagnosis_numeric', batch_size=1)
+test_gen = GenericImageSequence(test_df,'derm','diagnosis_numeric', batch_size=1)
 
+
+early_stopping = callbacks.EarlyStopping(
+    min_delta=0.0001, # minimium amount of change to count as an improvement
+    patience=10, # how many epochs to wait before stopping
+    restore_best_weights=True,
+)
+
+
+history = reconstructed_model.fit(
+    train_gen,
+    validation_data=valid_gen,
+    epochs=20,
+    callbacks=[early_stopping]
+)
+reconstructed_model.save('model1.h5')
+history_frame = pd.DataFrame(history.history)
+history_frame.to_csv('score.csv')
