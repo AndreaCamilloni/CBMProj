@@ -21,10 +21,10 @@ def single_task_model():
 
     model.compile(
         loss={
-            'predictions': 'binary_crossentropy'
+            'predictions': tf.keras.losses.CategoricalCrossentropy(from_logits=True)
         },
-        optimizer='adam',
-        metrics=['accuracy']
+        optimizer = 'adam',
+        metrics = tf.keras.metrics.CategoricalAccuracy()
     )
     return model
 def single_task_modelprova():
