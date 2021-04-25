@@ -3,49 +3,39 @@ from tensorflow import keras
 from tensorflow.python.keras import Input, Model
 from tensorflow.python.keras.layers import Dense, GlobalAveragePooling2D, Activation, Conv2D, MaxPool2D, Flatten
 
-
 from keras.regularizers import l2
 from keras.layers import (Activation, Dropout, Flatten, Dense, GlobalMaxPooling2D,
                           BatchNormalization, Input, Conv2D, GlobalAveragePooling2D)
 
+
 def single_task_model():
-    base_model = keras.applications.ResNet50(weights=None, classes=2, include_top=False,
-                                             input_shape=(256,256,3))
-    x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-    x = Dense(1024, activation='relu')(x)
-    predictions = Dense(2, activation='softmax', name='predictions')(x)
+    base_model = keras.applications.InceptionV3(
+        weights='imagenet',  # Load weights pre-trained on ImageNet.
+        input_shape=(256, 256, 3),  # VGG16 expects min 32 x 32
+        include_top=False)  # Do not include the ImageNet classifier at the top.
+    base_model.trainable = False
+    inputs = keras.Input(shape=(256, 256, 3))
+    x = base_model(inputs, training=False)
+    x = keras.layers.GlobalAveragePooling2D()(x)
 
-    # this is the model we will train
-    model = Model(inputs=base_model.input, outputs=predictions)
+    initializer = tf.keras.initializers.GlorotUniform(seed=42)
+    activation = None  # tf.keras.activations.sigmoid or softmax
 
+    outputs = keras.layers.Dense(2,
+                                 kernel_initializer=initializer,
+                                 activation=activation,
+                                 name='predictions')(x)
+
+    model = keras.Model(inputs, outputs)
     model.compile(
         loss={
             'predictions': tf.keras.losses.CategoricalCrossentropy(from_logits=True)
         },
-        optimizer = 'adam',
-        metrics = tf.keras.metrics.CategoricalAccuracy()
-    )
-    return model
-def single_task_modelprova():
-    base_model = keras.applications.ResNet50(weights=None, classes=2, include_top=False, input_shape=(256, 256, 3))
-
-    x = keras.layers.GlobalAveragePooling2D()(base_model.output)
-    x = keras.layers.Dropout(0.5)(x)
-    x = Dense(1024, activation='relu', kernel_regularizer=l2(5e-4))(x)
-    x = keras.layers.Dropout(0.5)(x)
-    # doing binary prediction, so just 1 neuron is enough
-    predictions = Dense(1, activation='sigmoid', name='predictions')(x)
-    model = Model(inputs=base_model.input, outputs=predictions)
-    model.compile(
-        loss={
-            'predictions': 'binary_crossentropy'
-        },
+        # loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
         optimizer='adam',
-        metrics=['accuracy']
+        metrics=tf.keras.metrics.CategoricalAccuracy()
     )
     return model
-
 
 
 def multi_task_model():
