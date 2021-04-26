@@ -92,12 +92,12 @@ def Model_XtoC(loss_list, test_metrics, dd):
     y7 = Dropout(dd)(y7)
 
     # connect all the heads to their final output layers
-    y1 = Dense(3, activation='softmax', name='pigment_network_numeric')(y1)
-    y2 = Dense(2, activation='softmax', name='blue_whitish_veil_numeric')(y2)
-    y3 = Dense(3, activation='softmax', name='vascular_structures_numeric')(y3)
-    y4 = Dense(3, activation='softmax', name='pigmentation_numeric')(y4)
+    y1 = Dense(3, activation='sigmoid', name='pigment_network_numeric')(y1)
+    y2 = Dense(2, activation='sigmoid', name='blue_whitish_veil_numeric')(y2)
+    y3 = Dense(3, activation='sigmoid', name='vascular_structures_numeric')(y3)
+    y4 = Dense(3, activation='sigmoid', name='pigmentation_numeric')(y4)
     y5 = Dense(3, activation='sigmoid', name='streaks_numeric')(y5)
-    y6 = Dense(3, activation='softmax', name='dots_and_globules_numeric')(y6)
+    y6 = Dense(3, activation='sigmoid', name='dots_and_globules_numeric')(y6)
     y7 = Dense(2, activation='sigmoid', name='regression_structures_numeric')(y7)
 
     model = Model(inputs=model_input, outputs=[y1, y2, y3, y4, y5, y6, y7])
