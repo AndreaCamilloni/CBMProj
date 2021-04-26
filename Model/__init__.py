@@ -38,6 +38,75 @@ def single_task_model():
     return model
 
 
+def Model_XtoC(loss_list, test_metrics, dd):
+    base_model = keras.applications.InceptionV3(weights='imagenet', include_top=False)
+
+    # freeze all the layers
+    for layer in base_model.layers[:]:
+        layer.trainable = False
+
+    model_input = Input(shape=(224, 224, 3))
+    x = base_model(model_input)
+    x = keras.layers.GlobalAveragePooling2D()(x)
+
+    # let's add a fully-connected layer
+    x = Dense(256, activation='relu')(x)
+    x = Dropout(dd)(x)
+    x = Dense(256, activation='relu')(x)
+    x = Dropout(dd)(x)
+    # start passing that fully connected block output to all the
+    # different model heads
+    y1 = Dense(128, activation='relu')(x)
+    y1 = Dropout(dd)(y1)
+    y1 = Dense(64, activation='relu')(y1)
+    y1 = Dropout(dd)(y1)
+
+    y2 = Dense(128, activation='relu')(x)
+    y2 = Dropout(dd)(y2)
+    y2 = Dense(64, activation='relu')(y2)
+    y2 = Dropout(dd)(y2)
+
+    y3 = Dense(128, activation='relu')(x)
+    y3 = Dropout(dd)(y3)
+    y3 = Dense(64, activation='relu')(y3)
+    y3 = Dropout(dd)(y3)
+
+    y4 = Dense(128, activation='relu')(x)
+    y4 = Dropout(dd)(y4)
+    y4 = Dense(64, activation='relu')(y4)
+    y4 = Dropout(dd)(y4)
+
+    y5 = Dense(128, activation='relu')(x)
+    y5 = Dropout(dd)(y5)
+    y5 = Dense(64, activation='relu')(y5)
+    y5 = Dropout(dd)(y5)
+
+    y6 = Dense(128, activation='relu')(x)
+    y6 = Dropout(dd)(y6)
+    y6 = Dense(64, activation='relu')(y6)
+    y6 = Dropout(dd)(y6)
+
+    y7 = Dense(128, activation='relu')(x)
+    y7 = Dropout(dd)(y7)
+    y7 = Dense(64, activation='relu')(y7)
+    y7 = Dropout(dd)(y7)
+
+    # connect all the heads to their final output layers
+    y1 = Dense(3, activation='softmax', name='pigment_network_numeric')(y1)
+    y2 = Dense(2, activation='softmax', name='blue_whitish_veil_numeric')(y2)
+    y3 = Dense(3, activation='softmax', name='vascular_structures_numeric')(y3)
+    y4 = Dense(3, activation='softmax', name='pigmentation_numeric')(y4)
+    y5 = Dense(3, activation='sigmoid', name='streaks_numeric')(y5)
+    y6 = Dense(3, activation='softmax', name='dots_and_globules_numeric')(y6)
+    y7 = Dense(2, activation='sigmoid', name='regression_structures_numeric')(y7)
+
+    model = Model(inputs=model_input, outputs=[y1, y2, y3, y4, y5, y6, y7])
+
+    model.compile(loss=loss_list, optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9), metrics=test_metrics)
+
+    return model
+
+
 def multi_task_model():
     base_model = keras.applications.ResNet50(weights=None, classes=14, include_top=False, input_shape=(256, 256, 3))
     x = base_model.output
