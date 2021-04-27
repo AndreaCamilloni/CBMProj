@@ -7,10 +7,10 @@ from tensorflow.python.keras.models import load_model
 from Dataset import train_df, test_df, valid_df
 from Dataset.Sequence import GenericImageSequence
 
-reconstructed_model = load_model('model1.h5')
-train_gen = GenericImageSequence(train_df,'derm','diagnosis_numeric', batch_size=1)
-valid_gen = GenericImageSequence(valid_df,'derm','diagnosis_numeric', batch_size=1)
-test_gen = GenericImageSequence(test_df,'derm','diagnosis_numeric', batch_size=1)
+reconstructed_model = load_model('model.h5')
+train_gen = GenericImageSequence(train_df,'derm','diagnosis_numeric', batch_size=16)
+valid_gen = GenericImageSequence(valid_df,'derm','diagnosis_numeric', batch_size=16)
+test_gen = GenericImageSequence(test_df,'derm','diagnosis_numeric', batch_size=16)
 
 
 early_stopping = callbacks.EarlyStopping(
