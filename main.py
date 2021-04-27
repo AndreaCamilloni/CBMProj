@@ -9,20 +9,20 @@ from Model import single_task_model
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 
+from Utils.utils import plot_confusion_matrix
+
 model = single_task_model()
 
-#train_df, test_df = train_test_split(df, test_size=0.3) #splittare secondo train e test indexes
-train_gen = GenericImageSequence(train_df,'derm','diagnosis_numeric', batch_size=24, shuffle=True)
-valid_gen = GenericImageSequence(valid_df,'derm','diagnosis_numeric', batch_size=24, shuffle=True)
-test_gen = GenericImageSequence(test_df,'derm','diagnosis_numeric', batch_size=24, shuffle=True)
-
+# train_df, test_df = train_test_split(df, test_size=0.3) #splittare secondo train e test indexes
+train_gen = GenericImageSequence(train_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True)
+valid_gen = GenericImageSequence(valid_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True)
+test_gen = GenericImageSequence(test_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True)
 
 early_stopping = callbacks.EarlyStopping(
-    min_delta=0.0001, # minimium amount of change to count as an improvement
-    patience=25, # how many epochs to wait before stopping
+    min_delta=0.0001,  # minimium amount of change to count as an improvement
+    patience=25,  # how many epochs to wait before stopping
     restore_best_weights=True,
 )
-
 
 history = model.fit(
     train_gen,
@@ -31,7 +31,7 @@ history = model.fit(
     callbacks=[early_stopping]
 )
 model.save('model.h5')
-#train_gen[0]
+# train_gen[0]
 history_frame = pd.DataFrame(history.history)
 history_frame.to_csv('score.csv')
 
@@ -57,15 +57,9 @@ plt.close()
 Y_pred = model.predict(test_gen)
 #
 y_pred = np.argmax(Y_pred, axis=1)
-cm=confusion_matrix(test_df.diagnosis_numeric, y_pred)
-plt.imshow(cm, cmap=plt.cm.Blues)
-plt.xlabel("Predicted labels")
-plt.ylabel("True labels")
-plt.xticks([], [])
-plt.yticks([], [])
-plt.title('Confusion matrix ')
-plt.colorbar()
-plt.savefig('cm.png')
-plt.close()
+cm = confusion_matrix(test_df.diagnosis_numeric, y_pred)
+plot_confusion_matrix(cm, normalize=False,
+                      target_names=['MEL', 'NEV'],
+                      title="Confusion Matrix")
 
 print(classification_report(test_df.diagnosis_numeric, y_pred))
