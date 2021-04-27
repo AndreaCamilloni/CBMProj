@@ -5,6 +5,7 @@ import pandas as pd
 from Dataset import df, train_df, test_df, valid_df
 from Dataset.Sequence import GenericImageSequence
 from Model import single_task_model
+import matplotlib.pyplot as plt
 
 model = single_task_model()
 
@@ -31,3 +32,22 @@ model.save('model.h5')
 #train_gen[0]
 history_frame = pd.DataFrame(history.history)
 history_frame.to_csv('score.csv')
+
+# summarize history for accuracy
+plt.plot(history.history['categorical_accuracy'])
+plt.plot(history.history['val_categorical_accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig('accuracy.png')
+plt.close()
+# summarize history for loss
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig('loss.png')
+plt.close()
