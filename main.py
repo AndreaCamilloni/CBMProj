@@ -59,7 +59,7 @@ Y_pred = model.predict(test_gen)
 y_pred = np.argmax(Y_pred, axis=1)
 cm = confusion_matrix(test_df.diagnosis_numeric, y_pred)
 plot_confusion_matrix(cm, normalize=False,
-                      target_names=['MEL', 'NEV'],
+                      target_names=['NEV', 'MEL'],
                       title="Confusion Matrix")
 
 print(classification_report(test_df.diagnosis_numeric, y_pred))
