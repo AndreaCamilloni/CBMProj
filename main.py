@@ -1,3 +1,5 @@
+import os
+
 from sklearn.model_selection import train_test_split
 from tensorflow import keras
 from tensorflow.keras import *
@@ -6,6 +8,10 @@ import numpy as np
 from Dataset import df, train_df, test_df, valid_df
 from Dataset.Sequence import GenericImageSequence
 from Model import single_task_model
+import matplotlib as mpl
+if os.environ.get('DISPLAY','') == '':
+    print('no display found. Using non-interactive Agg backend')
+    mpl.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 
