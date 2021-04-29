@@ -1,6 +1,8 @@
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import os
 
+from Utils.utils import balance_df
+
 meta_dir = os.path.join('..', '/home/andreac/release_v0/meta')
 image_dir = os.path.join('..', '/home/andreac/release_v0/images')
 
@@ -24,3 +26,10 @@ def nev_or_mel(df):
 train_df = nev_or_mel(train_df)
 valid_df = nev_or_mel(valid_df)
 test_df = nev_or_mel(test_df)
+
+train_df = balance_df(train_df)
+valid_df = balance_df(valid_df)
+test_df = balance_df(test_df)
+
+
+

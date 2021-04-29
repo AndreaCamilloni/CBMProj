@@ -1,12 +1,12 @@
-import os
-
+import pandas as pd
 import matplotlib as mpl
-if os.environ.get('DISPLAY','') == '':
-    print('no display found. Using non-interactive Agg backend')
-    mpl.use('Agg')
+
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import itertools
+
+from sklearn.utils import resample
 
 
 def plot_confusion_matrix(cm,
@@ -49,3 +49,12 @@ def plot_confusion_matrix(cm,
     plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass))
     plt.savefig("cm.png")
     plt.close()
+
+
+def balance_df(df):
+    nev = df[df.diagnosis_numeric == 0]
+    mel = df[df.diagnosis_numeric == 1]
+    nev_downsampled = resample(nev,
+                               replace=False,
+                               n_samples=len(mel))
+    return pd.concat([nev_downsampled, mel])

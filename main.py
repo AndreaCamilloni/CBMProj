@@ -24,6 +24,16 @@ train_gen = GenericImageSequence(train_df, 'derm', 'diagnosis_numeric', batch_si
 valid_gen = GenericImageSequence(valid_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True)
 test_gen = GenericImageSequence(test_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True)
 
+#weights for imbalance df
+""" 
+NEV_count, MEL_count = np.bincount(train_df.diagnosis_numeric)
+total_count = len(train_df.diagnosis_numeric)
+weight_NEV = (1 / NEV_count) * (total_count) / 2.0
+weight_MEL = (1 / MEL_count) * (total_count) / 2.0
+class_weights = {0: weight_NEV, 1: weight_MEL}
+"""
+
+
 early_stopping = callbacks.EarlyStopping(
     min_delta=0.0001,  # minimium amount of change to count as an improvement
     patience=25,  # how many epochs to wait before stopping
@@ -34,7 +44,8 @@ history = model.fit(
     train_gen,
     validation_data=valid_gen,
     epochs=100,
-    callbacks=[early_stopping]
+    callbacks=[early_stopping],
+    #class_weight=class_weights
 )
 model.save('model.h5')
 # train_gen[0]
