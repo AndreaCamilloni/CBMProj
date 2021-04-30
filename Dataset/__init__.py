@@ -27,9 +27,9 @@ train_df = nev_or_mel(train_df)
 valid_df = nev_or_mel(valid_df)
 test_df = nev_or_mel(test_df)
 
-train_df = balance_df(train_df)
-valid_df = balance_df(valid_df)
-test_df = balance_df(test_df)
+balance_train_df = balance_df(train_df)
+balance_valid_df = balance_df(valid_df)
+balance_test_df = balance_df(test_df)
 
 
 

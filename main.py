@@ -5,13 +5,12 @@ from tensorflow import keras
 from tensorflow.keras import *
 import pandas as pd
 import numpy as np
-from Dataset import df, train_df, test_df, valid_df
+from Dataset import *
 from Dataset.Sequence import GenericImageSequence
 from Model import single_task_model
 import matplotlib as mpl
-if os.environ.get('DISPLAY','') == '':
-    print('no display found. Using non-interactive Agg backend')
-    mpl.use('Agg')
+mpl.use('Agg')
+mpl.rcParams.update({'font.size': 22})
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 
@@ -20,9 +19,9 @@ from Utils.utils import plot_confusion_matrix
 model = single_task_model()
 
 # train_df, test_df = train_test_split(df, test_size=0.3) #splittare secondo train e test indexes
-train_gen = GenericImageSequence(train_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True)
-valid_gen = GenericImageSequence(valid_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True)
-test_gen = GenericImageSequence(test_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True)
+train_gen = GenericImageSequence(balance_train_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=False)
+valid_gen = GenericImageSequence(balance_valid_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=False)
+test_gen = GenericImageSequence(balance_test_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=False)
 
 #weights for imbalance df
 """ 
