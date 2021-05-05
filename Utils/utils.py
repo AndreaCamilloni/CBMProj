@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib as mpl
-mpl.rcParams.update({'font.size': 22})
+
+mpl.rcParams.update({'font.size': 22, 'text.color': "black"})
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -58,3 +59,23 @@ def balance_df(df):
                                replace=False,
                                n_samples=len(mel))
     return pd.concat([nev_downsampled, mel])
+
+
+def oversampling_balance_df(df):
+    nev = df[df.diagnosis_numeric == 0]
+    mel = df[df.diagnosis_numeric == 1]
+    nev_downsampled = resample(nev,
+                               replace=False,
+                               n_samples=len(mel))
+    return pd.concat([mel, nev_downsampled, mel]).sample(frac=1)
+
+
+def export_graph(_history, file_name, train, val, title, y_label, x_label='epoch', legend=['train', 'valid']):
+    plt.plot(_history.history[train])
+    plt.plot(_history.history[val])
+    plt.title(title)
+    plt.ylabel(y_label)
+    plt.xlabel(x_label)
+    plt.legend(legend, loc='upper left')
+    plt.savefig('mtl/'+file_name)
+    plt.close()

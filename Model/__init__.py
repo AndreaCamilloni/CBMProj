@@ -17,6 +17,7 @@ def single_task_model():
     inputs = keras.Input(shape=(256, 256, 3))
     x = base_model(inputs, training=False)
     x = keras.layers.GlobalAveragePooling2D()(x)
+    x= Dropout(0.2)(x)
 
     initializer = tf.keras.initializers.GlorotUniform(seed=42)
     activation = None  # tf.keras.activations.sigmoid or softmax
