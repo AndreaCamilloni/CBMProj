@@ -1,4 +1,4 @@
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 import os
 
 from Utils.utils import balance_df, oversampling_balance_df
@@ -16,13 +16,39 @@ train_df = df.iloc[train_indexes]
 valid_df = df.iloc[valid_indexes]
 test_df = df.iloc[test_indexes]
 
-#MEL && NEV cases mapping
+# Label cols, names, abbrevs
+labels_cols = [
+    'pigment_network_numeric',
+    'blue_whitish_veil_numeric',
+    'vascular_structures_numeric',
+    'pigmentation_numeric',
+    'streaks_numeric',
+    'dots_and_globules_numeric',
+    'regression_structures_numeric']
+
+pigment_network = ['ABS', 'TYP', 'ATP']
+blue_whitish_veil = ['ABS', 'PRS']
+vascular_structures = ['ABS', 'REG', 'IR']
+pigmentation = ['ABS', 'REG', 'IR']
+regression_structures = ['ABS', 'PRS']
+streaks = ['ABS', 'REG', 'IR']
+dots_and_globules = ['ABS', 'REG', 'IR']
+
+labels = [pigment_network, blue_whitish_veil, vascular_structures, pigmentation, streaks, dots_and_globules,
+          regression_structures]
+
+labels_name = ['PN', 'BWV', 'VS', 'PIG', 'STR', 'DaG', 'RS']
+
+
+# MEL && NEV cases mapping
 def nev_or_mel(df):
-    df = df.drop(df[df.diagnosis_numeric==0].index)
-    df = df.drop(df[df.diagnosis_numeric==3].index)
-    df = df.drop(df[df.diagnosis_numeric==4].index)
-    df['diagnosis_numeric']=df['diagnosis_numeric'].apply(lambda x: 1 if x == 2 else 0)
+    df = df.drop(df[df.diagnosis_numeric == 0].index)
+    df = df.drop(df[df.diagnosis_numeric == 3].index)
+    df = df.drop(df[df.diagnosis_numeric == 4].index)
+    df['diagnosis_numeric'] = df['diagnosis_numeric'].apply(lambda x: 1 if x == 2 else 0)
     return df
+
+
 train_df = nev_or_mel(train_df)
 valid_df = nev_or_mel(valid_df)
 test_df = nev_or_mel(test_df)
@@ -30,6 +56,3 @@ test_df = nev_or_mel(test_df)
 oversampling_balance_train_df = oversampling_balance_df(train_df)
 balance_valid_df = balance_df(valid_df)
 balance_test_df = balance_df(test_df)
-
-
-
