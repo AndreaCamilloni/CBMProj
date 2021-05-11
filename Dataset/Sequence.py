@@ -8,8 +8,8 @@ from functools import partial
 
 
 @tf.function
-def load_images(x):
-    image = tf.io.read_file('/home/andreac/release_v0/images/' + x)
+def load_images(x, image_dir):
+    image = tf.io.read_file(image_dir + x)
     image = tf.image.decode_jpeg(image)
     image = tf.image.convert_image_dtype(image, tf.float32)
     # image = image / 255.
@@ -18,14 +18,14 @@ def load_images(x):
     return image
 
 
-def load_resize(x, new_size=(256, 256)):
-    im = load_images(x)
+def load_resize(x,image_dir, new_size=(256, 256)):
+    im = load_images(x,image_dir)
     im = tf.image.resize(im, size=new_size)
     return im
 
 
-def load_aug_resize(x, new_size=(256, 256)):
-    image = load_images(x)
+def load_aug_resize(x,image_dir, new_size=(256, 256)):
+    image = load_images(x,image_dir)
     # augment image
     d1, d2, d3 = image.get_shape()
     r = tf.random.uniform([], minval=0.75, maxval=1., dtype=tf.float32)
@@ -39,11 +39,14 @@ def load_aug_resize(x, new_size=(256, 256)):
 
 class GenericImageSequence(Sequence):
     def __init__(
-            self, df: pd.DataFrame, impath_col='derm', label_col='diagnosis_numeric', batch_size=1, shuffle=False,
+            self, df: pd.DataFrame, impath_col='derm',
+            label_col='diagnosis_numeric', batch_size=1,
+            shuffle=False,
             map_fn='resize', one_hot_encoding=True, categories='auto', random_state=None, new_size=(256, 256),
-            reshuffle_each_epoch=True
+            reshuffle_each_epoch=True, image_dir='/home/andreac/release_v0/images/'
     ):
         super(GenericImageSequence, self).__init__()
+        self.image_dir = image_dir
         self.df = df
         self._df = df.copy(deep=True)  # backup copy of original
         self.impath_col = impath_col
@@ -107,11 +110,11 @@ class GenericImageSequence(Sequence):
         print('updating mapping function')
         if isinstance(map_fn, str):
             if map_fn == 'resize':
-                self.map_function = partial(load_resize, new_size=self.new_size)
+                self.map_function = partial(load_resize,image_dir=self.image_dir, new_size=self.new_size)
             elif map_fn == 'aug':
-                self.map_function = partial(load_aug_resize, new_size=self.new_size)
+                self.map_function = partial(load_aug_resize,image_dir=self.image_dir, new_size=self.new_size)
             elif map_fn == 'load':
-                self.map_function = load_images
+                self.map_function = partial(load_images, image_dir=self.image_dir)
             else:
                 raise Exception('no map function defined')
         else:
@@ -138,9 +141,10 @@ class MultiTaskSequence(Sequence):
                 'regression_structures_numeric'
             ], batch_size=1, shuffle=False,
             map_fn='resize', one_hot_encoding=True, categories='auto', random_state=None, new_size=(256, 256),
-            reshuffle_each_epoch=True
+            reshuffle_each_epoch=True,image_dir='/home/andreac/release_v0/images/'
     ):
         super(MultiTaskSequence, self).__init__()
+        self.image_dir = image_dir
         self.df = df
         self._df = df.copy(deep=True)  # backup copy of original
         self.impath_col = impath_col
@@ -239,11 +243,11 @@ class MultiTaskSequence(Sequence):
         print('updating mapping function')
         if isinstance(map_fn, str):
             if map_fn == 'resize':
-                self.map_function = partial(load_resize, new_size=self.new_size)
+                self.map_function = partial(load_resize, image_dir=self.image_dir, new_size=self.new_size)
             elif map_fn == 'aug':
-                self.map_function = partial(load_aug_resize, new_size=self.new_size)
+                self.map_function = partial(load_aug_resize, image_dir=self.image_dir, new_size=self.new_size)
             elif map_fn == 'load':
-                self.map_function = load_images
+                self.map_function = partial(load_images, image_dir=self.image_dir)
             else:
                 raise Exception('no map function defined')
         else:

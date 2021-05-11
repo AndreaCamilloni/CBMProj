@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib as mpl
 from sklearn.metrics import confusion_matrix, classification_report
 
-mpl.rcParams.update({'font.size': 22, 'text.color': "black"})
+#mpl.rcParams.update({'font.size': 22, 'text.color': "black"})
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -78,7 +78,7 @@ def export_graph(_history, file_name, train, val, title, y_label, x_label='epoch
     plt.ylabel(y_label)
     plt.xlabel(x_label)
     plt.legend(legend, loc='upper left')
-    plt.savefig('mtl/' + file_name)
+    plt.savefig(file_name)
     plt.close()
 
 
