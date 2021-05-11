@@ -71,7 +71,7 @@ report_to_csv(y_sequential_model, test_df.diagnosis_numeric, "CBM/Diagnosis/resu
 # Final prediction(NEV_or_MEL : DIAGNOSIS) based on real concepts (Independent Model: true_C => Y)
 c_to_y = logReg(C=0.01, class_weight='balanced', train_inputs=train_df[labels_cols],
                 train_label=train_df.diagnosis_numeric)
-y_independent_model = c_to_y.predict(predicted_concepts_df)  ### test_df[labels_cols] ### da verificare meglio
+y_independent_model = c_to_y.predict(predicted_concepts_df)
 plot_confusion(y_true=test_df.diagnosis_numeric, y_pred=y_independent_model, labels=['NEV', 'MEL'], figsize=(6, 4))
 plt.title('DIAG_IndMod' + ' - dermoscopic images');
 plt.savefig('CBM/Diagnosis/' + 'DIAG' + '_CM' + '_IndMod')
@@ -92,7 +92,7 @@ report_to_csv(diagnosis(test_df, 3), test_df.diagnosis_numeric, "CBM/Diagnosis/r
 plot_confusion(y_true=test_df.diagnosis_numeric, y_pred=diagnosis(predicted_concepts_df, 3), labels=['NEV', 'MEL'],
                figsize=(6, 4))
 plt.title('DIAG_7ptChecklist' + ' - dermoscopic images');
-plt.savefig('CBM/Diagnosis/' + 'DIAG' + '_CM' + '_7pt_trueC')
+plt.savefig('CBM/Diagnosis/' + 'DIAG' + '_CM' + '_7pt_CHat')
 plt.close()
 # classification report to csv
-report_to_csv(diagnosis(predicted_concepts_df, 3), test_df.diagnosis_numeric, "CBM/Diagnosis/result7pt_trueC.csv")
+report_to_csv(diagnosis(predicted_concepts_df, 3), test_df.diagnosis_numeric, "CBM/Diagnosis/result7pt_CHat.csv")
