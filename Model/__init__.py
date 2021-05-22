@@ -7,6 +7,8 @@ from keras.regularizers import l2
 from keras.layers import (Activation, Dropout, Flatten, Dense, GlobalMaxPooling2D,
                           BatchNormalization, Input, Conv2D, GlobalAveragePooling2D)
 
+from Utils.focal_xentropy import FocalCategoricalCrossEntropy
+
 
 def single_task_model():
     base_model = keras.applications.InceptionV3(
@@ -30,7 +32,8 @@ def single_task_model():
     model = keras.Model(inputs, outputs)
     model.compile(
         loss={
-            'predictions': tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+            # 'predictions': tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+            'predictions' : FocalCategoricalCrossEntropy(beta=2., from_logits=True)
         },
         # loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
         optimizer='adam',
