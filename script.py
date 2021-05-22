@@ -40,26 +40,33 @@ report_to_csv(y_singletask, test_df.diagnosis_numeric, "CBM/Diagnosis/result_x_t
 # Concepts extraction from features (X=>C_HAT)
 # (X=>C_HAT) valid for both model, independent and sequential
 x_to_C_HAT = {}
-C_HAT = {}
+C_HAT_test = {}
+C_HAT_train = {}
 for idx, t in enumerate(labels_cols):
     x_to_C_HAT[idx] = logReg(class_weight='balanced', train_inputs=train_derm_f, train_label=train_df[t], C=0.01)
-    C_HAT[idx] = logReg_predict(reg=x_to_C_HAT[idx], test_inputs=test_derm_f)
+    C_HAT_test[idx] = logReg_predict(reg=x_to_C_HAT[idx], test_inputs=test_derm_f)
+    C_HAT_train[idx] = logReg_predict(reg=x_to_C_HAT[idx], test_inputs=train_derm_f)
     # plot and save CM for each concept
-    plot_confusion(y_true=test_df[t], y_pred=C_HAT[idx], labels=labels[idx], figsize=(6, 4))
+    plot_confusion(y_true=test_df[t], y_pred=C_HAT_test[idx], labels=labels[idx], figsize=(6, 4))
     plt.title(labels_name[idx] + ' - dermoscopic images')
     plt.savefig('CBM/PredictedConcepts/' + labels_name[idx] + '_CM.png')
     plt.close()
     # classification report to csv
-    report_to_csv(C_HAT[idx], test_df[t], 'CBM/PredictedConcepts/' + t + '_result.csv')
+    report_to_csv(C_HAT_test[idx], test_df[t], 'CBM/PredictedConcepts/' + t + '_result.csv')
 
-predicted_concepts_df = pd.DataFrame(C_HAT)
-predicted_concepts_df.columns = labels_cols
+# Predicted concepts for logistic regression training
+predicted_concepts_df_training = pd.DataFrame(C_HAT_train)
+predicted_concepts_df_training.columns = labels_cols
+
+# Predicted concepts to test logistic regression
+predicted_concepts_df = pd.DataFrame(C_HAT_test)
+predicted_concepts_df.columns = labels_cols  # c_hat test df
 
 # Final prediction(NEV_or_MEL : DIAGNOSIS) based on predicted concepts (Sequential Model: C_HAT => Y)
-c_HAT_to_y = logReg(C=0.01, class_weight='balanced', train_inputs=predicted_concepts_df,
-                    train_label=test_df.diagnosis_numeric)
-y_sequential_model = c_HAT_to_y.predict(
-    predicted_concepts_df)  # la predizione finale devo farla sui concetti reali o su quelli trovati
+c_HAT_to_y = logReg(C=0.01, class_weight='balanced', train_inputs=predicted_concepts_df_training,
+                    train_label=train_df.diagnosis_numeric)
+y_sequential_model = c_HAT_to_y.predict(predicted_concepts_df)
+
 # plot and save CM for DIAG
 plot_confusion(y_true=test_df.diagnosis_numeric, y_pred=y_sequential_model, labels=['NEV', 'MEL'], figsize=(6, 4))
 plt.title('DIAG_SeqMod' + ' - dermoscopic images');
