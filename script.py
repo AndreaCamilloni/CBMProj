@@ -1,8 +1,6 @@
 """ CBM with logistic regression as classifier + 7pt algorithm """
 import os
 import pandas as pd
-from sklearn.metrics import classification_report
-import tensorflow as tf
 from Dataset import image_dir, train_df, test_df, labels_cols, labels_name, labels
 from Model.CBM import deep_features, logReg, logReg_predict
 from keras.applications.inception_v3 import InceptionV3, preprocess_input
