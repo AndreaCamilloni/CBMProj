@@ -1,4 +1,7 @@
 # Single task model with CNN
+import sys
+
+from sklearn.model_selection import StratifiedKFold
 from tensorflow.keras import *
 
 import numpy as np
@@ -40,7 +43,6 @@ valid_gen = GenericImageSequence(test_df, 'derm', 'diagnosis_numeric', batch_siz
 test_gen = GenericImageSequence(test_df, 'derm', 'diagnosis_numeric', batch_size=64, shuffle=False,
                                 reshuffle_each_epoch=False, new_size=size)
 
-
 early_stopping = callbacks.EarlyStopping(
     min_delta=0.0001,  # minimium amount of change to count as an improvement
     patience=50,  # how many epochs to wait before stopping
@@ -70,10 +72,25 @@ export_graph(_history=history, file_name='loss.png', train='loss', val='val_loss
 
 Y_pred = model.predict(test_gen)
 y_pred = np.argmax(Y_pred, axis=1)
-
+# confusion matrix
 plot_confusion(y_true=test_df.diagnosis_numeric, y_pred=y_pred, labels=['NEV', 'MEL'], figsize=(6, 4))
 plt.title('DIAG_SingleTask' + ' - dermoscopic images');
-plt.savefig('/' + base_model + '/DIAG' + '_CM' + '_SingleTask')
+plt.savefig(base_model + '/DIAG' + '_CM' + '_SingleTask')
 plt.close()
 # classification report to csv
-report_to_csv(y_pred, test_df.diagnosis_numeric, path + base_model + "/resultSingleTask.csv")
+report_to_csv(y_pred, test_df.diagnosis_numeric, base_model + "/resultSingleTask.csv")
+
+stratifiedKFold = StratifiedKFold(n_splits=5)
+cvscores = []
+for train, test in stratifiedKFold.split(test_df, test_df.diagnosis_numeric):
+    test_gen = GenericImageSequence(test_df.iloc[test], 'derm', 'diagnosis_numeric', batch_size=64, shuffle=False,
+                                    reshuffle_each_epoch=False, new_size=size)
+    scores = model.evaluate(test_gen)
+    cvscores.append(scores[1] * 100)
+
+stdoutOrigin = sys.stdout
+sys.stdout = open(base_model + "/log.txt", "w")
+print(": Results on KFold:", cvscores,
+      "Mean Accuracy: %.3f%%, Standard Deviation: (%.3f%%)" % (np.mean(cvscores), np.std(cvscores)))
+sys.stdout.close()
+sys.stdout = stdoutOrigin
