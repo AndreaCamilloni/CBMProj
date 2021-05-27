@@ -1,9 +1,6 @@
-import os
-
-from sklearn.model_selection import train_test_split
-from tensorflow import keras
+# Single task model with CNN
 from tensorflow.keras import *
-import pandas as pd
+
 import numpy as np
 from Dataset import *
 from Dataset.Sequence import GenericImageSequence
@@ -12,66 +9,71 @@ from Model import single_task_model
 import matplotlib as mpl
 
 mpl.use('Agg')
-#mpl.rcParams.update({'font.size': 22})
+# mpl.rcParams.update({'font.size': 22})
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
 
-from Utils.utils import plot_confusion_matrix, export_graph, plot_confusion, report_to_csv
+from Utils.utils import export_graph, plot_confusion, report_to_csv
 
+# parameters
+base_model = 'IncNet'  # base for feature extraction(IncNet, MobNet or ResNet)
+lr = 0.01  # learning rate
+path = '/'  # path for saving data and plots
+input_shape = (256, 256, 3)
+size = (256, 256)
+loss_func = "FocXentropy"  # FocXentropy or CatXentropy
 
-model = single_task_model()
+model = single_task_model(lr=lr, input_shape=input_shape, base=base_model, loss="FocXentropy")
 
-# train_df, test_df = train_test_split(df, test_size=0.3) #splittare secondo train e test indexes
-train_gen = GenericImageSequence(ham10000_df, 'derm', 'diagnosis_numeric', batch_size=24,
+""" Pre-training on HAM10000 dataset
+ham10000_train_df, ham10000_test_df = train_test_split(ham10000_df, test_size=0.3)
+train_gen = GenericImageSequence(ham10000_train_df, 'derm', 'diagnosis_numeric', batch_size=64,
                                   shuffle=True, image_dir = '/home/andreac/HAM10000/images/')
-valid_gen = GenericImageSequence(valid_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True,
-                                 reshuffle_each_epoch=False)
-test_gen = GenericImageSequence(test_df, 'derm', 'diagnosis_numeric', batch_size=24, shuffle=True,
-                                reshuffle_each_epoch=False)
-
-# weights for imbalance df
-""" 
-NEV_count, MEL_count = np.bincount(train_df.diagnosis_numeric)
-total_count = len(train_df.diagnosis_numeric)
-weight_NEV = (1 / NEV_count) * (total_count) / 2.0
-weight_MEL = (1 / MEL_count) * (total_count) / 2.0
-class_weights = {0: weight_NEV, 1: weight_MEL}
+valid_gen = GenericImageSequence(ham10000_test_df, 'derm', 'diagnosis_numeric', batch_size=64, shuffle=True,
+                                 reshuffle_each_epoch=False, image_dir = '/home/andreac/HAM10000/images/')
 """
+# Keras Sequence
+train_gen = GenericImageSequence(oversampling_balance_df(train_df), 'derm', 'diagnosis_numeric', batch_size=64,
+                                 shuffle=True, new_size=size)
+valid_gen = GenericImageSequence(test_df, 'derm', 'diagnosis_numeric', batch_size=64, shuffle=True,
+                                 reshuffle_each_epoch=False, new_size=size)
+test_gen = GenericImageSequence(test_df, 'derm', 'diagnosis_numeric', batch_size=64, shuffle=False,
+                                reshuffle_each_epoch=False, new_size=size)
+
 
 early_stopping = callbacks.EarlyStopping(
     min_delta=0.0001,  # minimium amount of change to count as an improvement
-    patience=25,  # how many epochs to wait before stopping
+    patience=50,  # how many epochs to wait before stopping
     restore_best_weights=True,
 )
 
 history = model.fit(
     train_gen,
     validation_data=valid_gen,
-    epochs=100,
+    epochs=200,
     callbacks=[early_stopping],
     # class_weight=class_weights
 )
-model.save('model.h5')
-# train_gen[0]
+
+model.save(base_model + '/model.h5')
+
 history_frame = pd.DataFrame(history.history)
-history_frame.to_csv('score.csv')
+history_frame.to_csv(base_model + '/score.csv')
 
 # summarize history for accuracy
 export_graph(_history=history, file_name='accuracy.png', train='categorical_accuracy', val='val_categorical_accuracy',
-             title='model accuracy', y_label='accuracy', x_label='epoch', legend=['train', 'valid'])
+             title='model accuracy', y_label='accuracy', x_label='epoch', legend=['train', 'valid'], path=base_model)
 
 # summarize history for loss
 export_graph(_history=history, file_name='loss.png', train='loss', val='val_loss',
-             title='model loss', y_label='loss', x_label='epoch', legend=['train', 'valid'])
-
+             title='model loss', y_label='loss', x_label='epoch', legend=['train', 'valid'], path=base_model)
 
 Y_pred = model.predict(test_gen)
-#
 y_pred = np.argmax(Y_pred, axis=1)
 
 plot_confusion(y_true=test_df.diagnosis_numeric, y_pred=y_pred, labels=['NEV', 'MEL'], figsize=(6, 4))
 plt.title('DIAG_SingleTask' + ' - dermoscopic images');
-plt.savefig('DIAG' + '_CM' + '_SingleTask')
+plt.savefig('/' + base_model + '/DIAG' + '_CM' + '_SingleTask')
 plt.close()
 # classification report to csv
-report_to_csv(y_pred, test_df.diagnosis_numeric, "resultSingleTask.csv")
+report_to_csv(y_pred, test_df.diagnosis_numeric, path + base_model + "/resultSingleTask.csv")

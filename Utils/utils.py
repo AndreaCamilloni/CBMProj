@@ -100,3 +100,14 @@ def accuracy_on_stratiefiedKfold(model, x_test, true_label, model_name):
           "Mean Accuracy: %.3f%%, Standard Deviation: (%.3f%%)" % (results.mean() * 100.0, results.std() * 100.0))
     sys.stdout.close()
     sys.stdout = stdoutOrigin
+
+
+# Return dict of labels weight
+def labels_weight(df):
+    # weights for imbalance df
+    NEV_count, MEL_count = np.bincount(df.diagnosis_numeric)
+    total_count = len(df.diagnosis_numeric)
+    weight_NEV = (1 / NEV_count) * (total_count) / 2.0
+    weight_MEL = (1 / MEL_count) * (total_count) / 2.0
+    class_weights = {0: weight_NEV, 1: weight_MEL}
+    return class_weights
