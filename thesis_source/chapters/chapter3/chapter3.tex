@@ -1,0 +1,46 @@
+\graphicspath{{chapters/chapter3/}}
+\chapter{Dataset} \label{chapter4}
+Experiments have been carried out on the Derm7pt dataset (collecting images from the {Interactive Atlas of Dermoscopy}~\cite{Derm7ptData} ), which was publicly released with \cite{Kawahara}.The dataset consists of 1011 cases of skin lesion, previously annotated by doctors. For each case, data are available in different modalities(e.g. metadata, clinical and dermatoscopic images), however this work only considers dermatoscopic images, which provide better resolution and allow to appreciate better the patterns on the lesion that are necessary for the 7-point criteria.
+\begin{table}[]
+\centering
+\begin{tabular}{|l|r|r|}
+\hline
+\multicolumn{3}{|c|}{\textbf{Derm 7pt}} \\ \hline
+ & \multicolumn{1}{l|}{\textit{NEV}} & \multicolumn{1}{l|}{\textit{MEL}} \\ \hline
+Training set & 256 & 90 \\ \hline
+Validation set & 100 & 61 \\ \hline
+Test set & 219 & 101 \\ \hline
+\textit{Total} & 575 & 252 \\ \hline
+\end{tabular}
+\caption{Number of cases in the dataset, stratified by split. The dataset consists of only Nevus and Melanoma cases; training, test and validation subsets were split following the work of Kawahara et al.\cite{Kawahara} }
+\label{table:dataset}
+\end{table}
+
+The dataset was split in training, test and validation subsets as in the work by Kawahara et al. \cite{Kawahara}. However this work only considers the Nevus and Melanoma cases; thus, the samples belonging to other types of of lesions have been discarded. The remaining number of samples is 827, split according to the details in Table ~\ref{table:dataset}.\\
+The final datasets were unbalanced due to the minority of melanoma cases.
+Possible solutions have been studied to compensate for the imbalance were oversampling and undersampling of the dataset; in \cite{mtl7ptCoppola,Kawahara} a method to balance the data for each batch were proposed. In this work an oversampling technique was employed by duplicating melanoma cases in the training set, and by finally applying data augmentation\footnote{Data augmentation: technique to increase the diversity of the training set by applying random (but realistic) transformations such as image rotation. The proposed work deploys horinzontal and vertical flip, and crop, on the training images.}.
+This solution solves only the problem of the imbalance on the DIAG task and not on the remaining 7 tasks, for which no technique has been enforced.
+For each case 8 labels are available as summarized in Table~\ref{table:3} and they represent the 8 tasks to learn by the architectures implemented in this work.
+
+
+
+
+\begin{table}[]
+\begin{tabular}{ |p{6.2cm}|p{4.5cm}||p{1.6cm}|}
+ \hline
+ Task name & Classes & 7pt-Score \\
+ \hline
+ \textbf{Diagnosis (DIAG)} & NEV, MEL & \\\hline
+ \textbf{Pigment network (PN)} & ABS(0), TYP(0), ATP(2) & +2\\\hline
+ \textbf{Blue Whitish Veil (BWV)} & ABS(0), PRS(2) & +2\\\hline
+ \textbf{Vascular Structure (VS)} & ABS(0), REG(0), IR(2) & +2 \\\hline
+\textbf{Dots and Globules (DaG)} & ABS(0),  REG(0), IR(1) & +1 \\\hline
+\textbf{Streaks (STR)} & ABS(0),  REG(0), IR(1) & +1 \\\hline
+\textbf{Pigmentation (PIG)} & ABS(0),  REG(0), IR(1) & +1 \\\hline
+\textbf{Regression structures (RS)} & ABS(0),  REG(0), IR(1) & +1 \\
+\hline
+\end{tabular}
+\caption{The first task (DIAG) indicates the final diagnosis of the lesion, whereas the following are the 7 attributes that are used
+in the 7-point checklist.NEV:nevus; MEL: melanoma; ABS: absent; TYP: typical; ATP: atypical; PRS: present; REG: regular; IR: irregular.}
+\label{table:3}
+\end{table}
